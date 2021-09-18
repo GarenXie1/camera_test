@@ -1,0 +1,28 @@
+#ifndef _CONFIG_H
+#define _CONFIG_H
+
+#define VIDEO_DEVICE        "/dev/video0"
+#define CAPTURE_WIDTH       1280
+#define CAPTURE_HEIGHT      720
+#define CAPTURE_FRAME_NUM   10
+
+#define ENCODE_FILE
+
+//V4L2_PIX_FMT_SRGGB12
+//V4L2_PIX_FMT_YUV420
+//V4L2_PIX_FMT_YUYV
+//V4L2_PIX_FMT_NV12
+//V4L2_PIX_FMT_NV21
+//#define PIXELFORMAT         V4L2_PIX_FMT_YUV420
+//#define PIXELFORMAT         V4L2_PIX_FMT_YUV422P
+//#define PIXELFORMAT         V4L2_PIX_FMT_NV21
+#define PIXELFORMAT         V4L2_PIX_FMT_YUYV
+
+//V4L2_FIELD_INTERLACED -----隔行扫描
+//V4L2_FIELD_NONE------------逐行扫描
+#define PIXELFIELD          V4L2_FIELD_INTERLACED
+
+#define OUTPUT_FILE         "data.yuv"
+
+#endif
+
