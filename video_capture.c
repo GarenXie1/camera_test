@@ -199,6 +199,57 @@ void uninit_camera(struct camera *cam) {
 	free(cam->buffers);
 }
 
+int v4l2_display_sizes_pix_format(struct camera *cam , __u32 pixel_format)
+{
+	int ret = 0;
+	int fsizeind = 0; /*index for supported sizes*/
+	int fd = cam->fd;
+	struct v4l2_frmsizeenum fsize;
+
+	printf("------VIDIOC_ENUM_FRAMESIZES------\\n");
+    printf("V4L2 pixel sizes:\n");
+
+	CLEAR(fsize);
+	fsize.index = 0;
+	fsize.pixel_format = pixel_format;
+
+	while ((ret = xioctl(fd, VIDIOC_ENUM_FRAMESIZES, &fsize)) == 0)	{
+		fsize.index++;
+		if (fsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
+			printf("('%c%c%c%c'--> %u x %u ) Pixels\n", fsize.pixel_format >> 0, fsize.pixel_format >> 8,\
+						fsize.pixel_format >> 16, fsize.pixel_format >> 24, fsize.discrete.width, fsize.discrete.height);
+			fsizeind++;
+		}
+	}
+	printf("\n");
+    return fsizeind;
+}
+
+
+int display_pix_format(struct camera *cam)
+{
+    struct v4l2_fmtdesc fmt;
+    int index;
+	int fd = cam->fd;
+
+	printf("------VIDIOC_ENUM_FMT------\\n");
+    printf("V4L2 pixel formats:\n");
+
+    index = 0;
+    CLEAR(fmt);
+    fmt.index = index;
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    while (xioctl(fd, VIDIOC_ENUM_FMT, &fmt) != -1) {
+        printf("%i: [0x%08X] '%c%c%c%c' (%s)\n", index, fmt.pixelformat, fmt.pixelformat >> 0, fmt.pixelformat >> 8, fmt.pixelformat >> 16, fmt.pixelformat >> 24, fmt.description);
+
+        memset(&fmt, 0, sizeof(fmt));
+        fmt.index = ++index;
+        fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    }
+    printf("\n");
+}
+
 void init_mmap(struct camera *cam) {
 	struct v4l2_requestbuffers req;
 
@@ -269,24 +320,30 @@ void init_camera(struct camera *cam) {
 			errno_exit("VIDIOC_QUERYCAP");
 		}
 	}
-
+    printf("------VIDIOC_QUERYCAP------\n");
     printf("Driver: \"%s\"\n", cap->driver);
     printf("Card: \"%s\"\n", cap->card);
     printf("Bus: \"%s\"\n", cap->bus_info);
     printf("Version: %d.%d\n", (cap->version >> 16) && 0xff, (cap->version >> 24) && 0xff);
-    printf("Capabilities: %08x\n", cap->capabilities);
+    printf("Capabilities: 0x%08x\n", cap->capabilities);
 
 	if (!(cap->capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
 		fprintf(stderr, "%s is no video capture device\n", cam->device_name);
 		exit(EXIT_FAILURE);
+	}else{
+		fprintf(stderr, "	%s is video capture device\n", cam->device_name);
 	}
 
 	if (!(cap->capabilities & V4L2_CAP_STREAMING)) {
-		fprintf(stderr, "%s does not support streaming i/o\n",
-				cam->device_name);
+		fprintf(stderr, "%s does not support streaming i/o\n",cam->device_name);
 		exit(EXIT_FAILURE);
+	}else{
+		fprintf(stderr, "	%s does support streaming i/o\n", cam->device_name);
 	}
+	printf("\n");
 
+	display_pix_format(cam);
+	v4l2_display_sizes_pix_format(cam,PIXELFORMAT);
 	/* Select video input, video standard and tune here. */
 
 	CLEAR(*cropcap);
@@ -309,6 +366,12 @@ void init_camera(struct camera *cam) {
 
 	if (-1 == xioctl(cam->fd, VIDIOC_S_FMT, fmt))
 		errno_exit("VIDIOC_S_FMT");
+
+	printf("------VIDIOC_S_FMT------\n");
+	printf("	width*height = %d*%d\n", fmt->fmt.pix.width,fmt->fmt.pix.height);
+	printf("	pixelformat = '%c%c%c%c'\n", fmt->fmt.pix.pixelformat >> 0, fmt->fmt.pix.pixelformat >> 8, \
+										fmt->fmt.pix.pixelformat >> 16, fmt->fmt.pix.pixelformat >> 24);
+	printf("\n");
 
 	/* Note VIDIOC_S_FMT may change width and height. */
 

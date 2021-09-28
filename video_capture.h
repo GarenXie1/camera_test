@@ -42,6 +42,10 @@ void init_mmap(struct camera *cam);
 
 void v4l2_init(struct camera *cam);
 void v4l2_close(struct camera *cam);
+int display_pix_format(struct camera *cam);
+int v4l2_display_sizes_pix_format(struct camera *cam , __u32 pixel_format);
+
+
 
 #endif
 

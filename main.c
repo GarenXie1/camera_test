@@ -11,10 +11,21 @@
 struct camera *cam;
 pthread_t mythread;
 
+double get_wall_time()
+{
+    struct timeval time;
+    if (gettimeofday(&time, NULL))
+        return 0.;
+    return (double) time.tv_sec + (double) time.tv_usec * .000001;
+}
+
 void capture_encode_thread(void) {
-	long count = 1;
+	long count = 0;
+    double after , fps , before;
+
 	for (;;) {
-		printf("\n\n-->this is the %ldth frame\n", count);
+
+		before = get_wall_time();
 		if (count++ >= CAPTURE_FRAME_NUM) // 采集N帧的数据
 				{
 			printf("------need to exit from thread------- \n");
@@ -52,6 +63,11 @@ void capture_encode_thread(void) {
 			fprintf(stderr, "read_fram fail in thread\n");
 			break;
 		}
+
+		after = get_wall_time();
+		fps = 1.0 / (after - before);
+		printf("FPS[%d]: %.2f fps\n", count, fps);
+
 	}
 }
 
