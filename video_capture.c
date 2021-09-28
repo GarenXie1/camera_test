@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <linux/videodev2.h>
 #include <dirent.h>
 #include "video_capture.h"
 

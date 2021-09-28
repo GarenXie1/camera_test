@@ -1,7 +1,7 @@
 #ifndef _VIDEO_CAPTURE_H
 #define _VIDEO_CAPTURE_H
 
-#include <linux/videodev2.h>
+#include "videodev2.h"
 
 struct buffer {
 	void *start;
