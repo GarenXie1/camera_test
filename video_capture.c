@@ -270,6 +270,12 @@ void init_camera(struct camera *cam) {
 		}
 	}
 
+    printf("Driver: \"%s\"\n", cap->driver);
+    printf("Card: \"%s\"\n", cap->card);
+    printf("Bus: \"%s\"\n", cap->bus_info);
+    printf("Version: %d.%d\n", (cap->version >> 16) && 0xff, (cap->version >> 24) && 0xff);
+    printf("Capabilities: %08x\n", cap->capabilities);
+
 	if (!(cap->capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
 		fprintf(stderr, "%s is no video capture device\n", cam->device_name);
 		exit(EXIT_FAILURE);

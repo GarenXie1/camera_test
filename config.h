@@ -4,7 +4,7 @@
 #define VIDEO_DEVICE        "/dev/video0"
 #define CAPTURE_WIDTH       1280
 #define CAPTURE_HEIGHT      720
-#define CAPTURE_FRAME_NUM   100
+#define CAPTURE_FRAME_NUM   30
 
 #define ENCODE_FILE
 
